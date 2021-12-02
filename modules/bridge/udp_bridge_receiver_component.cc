@@ -1,4 +1,4 @@
-/******************************************************************************
+/*****************************************************************************
  * Copyright 2018 The Apollo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,10 +54,13 @@ bool UDPBridgeReceiverComponent<T>::Init() {
   writer_ = node_->CreateWriter<T>(topic_name_.c_str());
 
   if (!InitSession((uint16_t)bind_port_)) {
+    std::cout << "bind port fail" << std::endl;
     return false;
   }
   ADEBUG << "initialize session successful.";
+  // std::cout << "init session successful" << std::endl;
   MsgDispatcher();
+  
   return true;
 }
 
@@ -133,67 +136,106 @@ bool UDPBridgeReceiverComponent<T>::IsTimeout(double time_stamp) {
 
 template <typename T>
 bool UDPBridgeReceiverComponent<T>::MsgHandle(int fd) {
-  struct sockaddr_in client_addr;
-  socklen_t sock_len = static_cast<socklen_t>(sizeof(client_addr));
-  int bytes = 0;
-  int total_recv = 2 * FRAME_SIZE;
-  char total_buf[2 * FRAME_SIZE] = {0};
-  bytes =
-      static_cast<int>(recvfrom(fd, total_buf, total_recv, 0,
-                                (struct sockaddr *)&client_addr, &sock_len));
-  ADEBUG << "total recv " << bytes;
-  if (bytes <= 0 || bytes > total_recv) {
-    return false;
-  }
-  char header_flag[sizeof(BRIDGE_HEADER_FLAG) + 1] = {0};
-  size_t offset = 0;
-  memcpy(header_flag, total_buf, HEADER_FLAG_SIZE);
-  if (strcmp(header_flag, BRIDGE_HEADER_FLAG) != 0) {
-    AINFO << "header flag not match!";
-    return false;
-  }
-  offset += sizeof(BRIDGE_HEADER_FLAG) + 1;
+  
+    struct sockaddr_in client_addr;
+    socklen_t sock_len = static_cast<socklen_t>(sizeof(client_addr));
+    int total_recv = 2 * FRAME_SIZE;
+    int bytes = 0;
+    char total_buf[2 * FRAME_SIZE] = {0};
 
-  char header_size_buf[sizeof(hsize) + 1] = {0};
-  const char *cursor = total_buf + offset;
-  memcpy(header_size_buf, cursor, sizeof(hsize));
-  hsize header_size = *(reinterpret_cast<hsize *>(header_size_buf));
-  if (header_size > FRAME_SIZE) {
-    AINFO << "header size is more than FRAME_SIZE!";
-    return false;
-  }
-  offset += sizeof(hsize) + 1;
+    while(true){
+	if(proto_name_ != "CompressedImage"){
+		usleep(1);
+	}
+    bytes =
+        // static_cast<int>(recvfrom(fd, total_buf, total_recv, 0,
+        static_cast<int>(recvfrom(fd, total_buf, total_recv, 0,
+                                  (struct sockaddr *)&client_addr, &sock_len));
+    // ADEBUG << "total recv " << bytes;
+    if (bytes <= 0 || bytes > total_recv) {
+      // return false;
+      continue;
+    }
+    char header_flag[sizeof(BRIDGE_HEADER_FLAG) + 1] = {0};
+    size_t offset = 0;
+    memcpy(header_flag, total_buf, HEADER_FLAG_SIZE);
+    if (strcmp(header_flag, BRIDGE_HEADER_FLAG) != 0) {
+      AINFO << "header flag not match!";
+      return false;
+    }
+    offset += sizeof(BRIDGE_HEADER_FLAG) + 1;
 
-  BridgeHeader header;
-  size_t buf_size = header_size - offset;
-  cursor = total_buf + offset;
-  if (!header.Diserialize(cursor, buf_size)) {
-    AINFO << "header diserialize failed!";
-    return false;
-  }
+    char header_size_buf[sizeof(hsize) + 1] = {0};
+    const char *cursor = total_buf + offset;
+    memcpy(header_size_buf, cursor, sizeof(hsize));
+    hsize header_size = *(reinterpret_cast<hsize *>(header_size_buf));
+    if (header_size > FRAME_SIZE) {
+      AINFO << "header size is more than FRAME_SIZE!";
+      return false;
+    }
+    offset += sizeof(hsize) + 1;
 
-  ADEBUG << "proto name : " << header.GetMsgName().c_str();
-  ADEBUG << "proto sequence num: " << header.GetMsgID();
-  ADEBUG << "proto total frames: " << header.GetTotalFrames();
-  ADEBUG << "proto frame index: " << header.GetIndex();
+    BridgeHeader header;
+    size_t buf_size = header_size - offset;
+    cursor = total_buf + offset;
+    if (!header.Diserialize(cursor, buf_size)) {
+      AINFO << "header diserialize failed!";
+      return false;
+    }
+    // ADEBUG << "proto name : " << header.GetMsgName().c_str();
+    // ADEBUG << "proto sequence num: " << header.GetMsgID();
+    // ADEBUG << "proto total frames: " << header.GetTotalFrames();
+    // ADEBUG << "proto frame index: " << header.GetIndex();
 
-  std::lock_guard<std::mutex> lock(mutex_);
-  BridgeProtoDiserializedBuf<T> *proto_buf = CreateBridgeProtoBuf(header);
-  if (!proto_buf) {
-    return false;
-  }
+    // std::cout << header.GetMsgName().c_str() << std::endl;
+    // std::cout << "MsgID : "<< header.GetMsgID() << std::endl;
+    // std::cout << header.GetMsgSize() << std::endl;
+    // std::cout << header.GetFrameSize() << std::endl;
+    // std::cout <<" Framecnt : "<< frame_cnt << std::endl;
+    
+    // std::cout << "Msg Name   : " << header.GetMsgName().c_str() << std::endl;
+    // std::cout << "Msg Name   : " << header.GetMsgName() << std::endl;
+    // std::cout << "proto Name   : " << proto_name_ << std::endl;
+    // std::cout << "topic Name   : " << topic_name_ << std::endl;
+    //  std::cout << "GetIndex   : " << header.GetIndex() << std::endl;
+    // std::cout << "TotalFrame : " << header.GetTotalFrames() << std::endl;
+    // std::cout << "=========================================== "<< std::endl;
 
-  cursor = total_buf + header_size;
-  char *buf = proto_buf->GetBuf(header.GetFramePos());
-  memcpy(buf, cursor, header.GetFrameSize());
-  proto_buf->UpdateStatus(header.GetIndex());
-  if (proto_buf->IsReadyDiserialize()) {
-    auto pb_msg = std::make_shared<T>();
-    proto_buf->Diserialized(pb_msg);
-    writer_->Write(pb_msg);
-    RemoveInvalidBuf(proto_buf->GetMsgID());
-    RemoveItem(&proto_list_, proto_buf);
-  }
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    if(header.GetIndex() == 0){
+      proto_buf = CreateBridgeProtoBuf(header);
+      proto_buf->Initialize(header);
+    }
+
+    if (!proto_buf) {
+      return false;
+    }
+
+    cursor = total_buf + header_size;
+    char *buf = proto_buf->GetBuf(header.GetFramePos());
+    memcpy(buf, cursor, header.GetFrameSize());
+    proto_buf->UpdateStatus(header.GetIndex());
+    // std::cout << "index : " << header.GetIndex() << std::endl; 
+    // std::cout << "IsreadyDiser : " << proto_buf->IsReadyDiserialize() << std::endl; 
+    if (proto_buf->IsReadyDiserialize()) {
+      
+      auto pb_msg = std::make_shared<T>();
+      proto_buf->Diserialized(pb_msg);
+      writer_->Write(pb_msg);
+      RemoveInvalidBuf(proto_buf->GetMsgID());
+      RemoveItem(&proto_list_, proto_buf);
+      proto_init_flag = true;
+
+    }else{
+      if(header.GetIndex())
+      proto_init_flag = false;
+    }
+    
+
+
+    }
+
   return true;
 }
 
@@ -217,5 +259,15 @@ bool UDPBridgeReceiverComponent<T>::RemoveInvalidBuf(uint32_t msg_id) {
 }
 
 BRIDGE_RECV_IMPL(canbus::Chassis);
+BRIDGE_RECV_IMPL(drivers::gnss::GnssBestPose);
+BRIDGE_RECV_IMPL(drivers::gnss::Imu);
+BRIDGE_RECV_IMPL(drivers::gnss::InsStat);
+BRIDGE_RECV_IMPL(localization::CorrectedImu);
+BRIDGE_RECV_IMPL(localization::Gps);
+BRIDGE_RECV_IMPL(drivers::ContiRadar);
+BRIDGE_RECV_IMPL(drivers::CompressedImage);
+BRIDGE_RECV_IMPL(perception::TrafficLightDetection);
+BRIDGE_RECV_IMPL(perception::PerceptionObstacle);
+
 }  // namespace bridge
 }  // namespace apollo

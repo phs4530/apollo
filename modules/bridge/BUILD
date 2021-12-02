@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 
 BRIDGE_COPTS = ['-DMODULE_NAME=\\"bridge\\"']
 
+
 cc_library(
     name = "udp_bridge",
     copts = BRIDGE_COPTS,
@@ -22,6 +23,16 @@ cc_library(
         "//modules/common/monitor_log",
         "//modules/common/util",
         "//modules/planning/proto:planning_cc_proto",
+        "//modules/drivers/gnss/proto:gnss_best_pose_cc_proto",
+        "//modules/drivers/gnss/proto:imu_cc_proto",
+        "//modules/drivers/gnss/proto:ins_cc_proto",
+        "//modules/localization/proto:gps_cc_proto",
+        "//modules/localization/proto:imu_cc_proto",
+        "//modules/control/proto:control_cmd_cc_proto",
+        "//modules/drivers/proto:conti_radar_cc_proto",
+        "//modules/drivers/proto:sensor_image_cc_proto",
+        "//modules/perception/proto:traffic_light_detection_cc_proto",
+        "//modules/perception/proto:perception_obstacle_cc_proto",
         "@com_github_gflags_gflags//:gflags",
     ],
 )

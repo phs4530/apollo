@@ -26,6 +26,16 @@
 
 #include "modules/bridge/proto/udp_bridge_remote_info.pb.h"
 #include "modules/canbus/proto/chassis.pb.h"
+#include "modules/drivers/gnss/proto/gnss_best_pose.pb.h"
+#include "modules/drivers/gnss/proto/imu.pb.h"
+#include "modules/drivers/gnss/proto/ins.pb.h"
+#include "modules/localization/proto/gps.pb.h"
+#include "modules/localization/proto/imu.pb.h"
+#include "modules/drivers/proto/conti_radar.pb.h"
+#include "modules/drivers/proto/sensor_image.pb.h"
+#include "modules/perception/proto/traffic_light_detection.pb.h"
+#include "modules/perception/proto/perception_obstacle.pb.h"
+
 
 #include "cyber/class_loader/class_loader.h"
 #include "cyber/component/component.h"
@@ -73,12 +83,33 @@ class UDPBridgeReceiverComponent final : public cyber::Component<> {
   std::shared_ptr<cyber::Writer<T>> writer_;
   std::mutex mutex_;
 
+  
+  // float total_frame_limit = MAXFLOAT;
+  // float frame_cnt = 0;
+  int flag = 1;
+
+  
+  BridgeProtoDiserializedBuf<T> *proto_buf;
+  bool proto_init_flag = true;
+
   std::shared_ptr<UDPListener<UDPBridgeReceiverComponent<T>>> listener_ =
       std::make_shared<UDPListener<UDPBridgeReceiverComponent<T>>>();
 
   std::vector<BridgeProtoDiserializedBuf<T> *> proto_list_;
+
 };
 
 RECEIVER_BRIDGE_COMPONENT_REGISTER(canbus::Chassis)
+RECEIVER_BRIDGE_COMPONENT_REGISTER(drivers::gnss::GnssBestPose)
+RECEIVER_BRIDGE_COMPONENT_REGISTER(drivers::gnss::Imu)
+RECEIVER_BRIDGE_COMPONENT_REGISTER(drivers::gnss::InsStat)
+RECEIVER_BRIDGE_COMPONENT_REGISTER(localization::CorrectedImu)
+RECEIVER_BRIDGE_COMPONENT_REGISTER(localization::Gps)
+RECEIVER_BRIDGE_COMPONENT_REGISTER(drivers::ContiRadar);
+RECEIVER_BRIDGE_COMPONENT_REGISTER(drivers::CompressedImage);
+RECEIVER_BRIDGE_COMPONENT_REGISTER(perception::TrafficLightDetection);
+RECEIVER_BRIDGE_COMPONENT_REGISTER(perception::PerceptionObstacles);
+
 }  // namespace bridge
 }  // namespace apollo
+
