@@ -18,3 +18,5 @@
 --use_cyber_time=true
 
 --map_dir=/apollo/modules/map/data/jeju
+
+--map_dir=/apollo/modules/map/data/suburb_03
