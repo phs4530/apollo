@@ -1,31 +1,9 @@
-#cyber_modules {
-#  key: "GPS"
-#  value: {
-#    dag_files: "/apollo/modules/bridge/dag/bridge_receiver_best_pose.dag"
-#    dag_files: "/apollo/modules/bridge/dag/bridge_receiver_odometry.dag"
-#  }
-#}
-#cyber_modules {
-#  key: "IMU"
-#  value: {
-#    dag_files: "/apollo/modules/bridge/dag/bridge_receiver_ins_stat.dag"
-#    dag_files: "/apollo/modules/bridge/dag/bridge_receiver_imu.dag"
-#    dag_files: "/apollo/modules/bridge/dag/bridge_receiver_corrected_imu.dag"
-#  }
-#}
-#cyber_modules {
-#  key: "Bridge"
-#  value: {
-#    dag_files: "/apollo/modules/bridge/dag/bridge_sender.dag"
-#    dag_files: "/apollo/modules/bridge/dag/bridge_receiver.dag"
-#  }
-#}
-#cyber_modules {
-#  key: "GT_Data"
-#  value: {
-#    dag_files: "/apollo/modules/bridge/dag/bridge_receiver_obstacle.dag"
-#  }
-#}
+cyber_modules {
+  key: "GT_Data"
+  value: {
+    dag_files: "/apollo/modules/bridge/dag/bridge_receiver_obstacle.dag"
+  }
+}
 cyber_modules {
   key: "Control"
   value: {
@@ -36,18 +14,6 @@ cyber_modules {
   key: "Control"
   value: {
     dag_files: "/apollo/modules/control/dag/control.dag"
-  }
-}
-#cyber_modules {
-#  key: "GPS"
-#  value: {
-#    dag_files: "/apollo/modules/drivers/gnss/dag/gnss.dag"
-#  }
-#}
-cyber_modules {
-  key: "Guardian"
-  value: {
-    dag_files: "/apollo/modules/guardian/dag/guardian.dag"
   }
 }
 cyber_modules {
@@ -56,28 +22,22 @@ cyber_modules {
     dag_files: "/apollo/modules/localization/dag/dag_streaming_rtk_localization.dag"
   }
 }
-#cyber_modules {
-#  key: "Perception"
-#  value: {
-#    dag_files: "/apollo/modules/perception/production/dag/dag_streaming_perception_lgsvl.dag"
-#  }
-#}
-#cyber_modules {
-#  key: "Traffic Light"
-#  value: {
-#    dag_files: "/apollo/modules/perception/production/dag/dag_streaming_perception_trafficlights.dag"
-#  }
-#}
+cyber_modules {
+  key: "Perception"
+  value: {
+    dag_files: "/apollo/modules/perception/production/dag/dag_streaming_perception_lgsvl.dag"
+  }
+}
+cyber_modules {
+  key: "Traffic Light"
+  value: {
+    dag_files: "/apollo/modules/perception/production/dag/dag_streaming_perception_trafficlights.dag"
+  }
+}
 cyber_modules {
   key: "Planning"
   value: {
     dag_files: "/apollo/modules/planning/dag/planning.dag"
-  }
-}
-cyber_modules {
-  key: "Storytelling"
-  value: {
-    dag_files: "/apollo/modules/storytelling/dag/storytelling.dag"
   }
 }
 cyber_modules {
@@ -98,47 +58,23 @@ cyber_modules {
     dag_files: "/apollo/modules/transform/dag/static_transform.dag"
   }
 }
-#cyber_modules {
-#  key: "Third Party Perception"
-#  value: {
-#    dag_files: "/apollo/modules/third_party_perception/dag/third_party_perception.dag"
-#  }
-#}
-#cyber_modules {
-#  key: "Velodyne"
-#  value: {
-#    dag_files: "/apollo/modules/drivers/lidar/velodyne/dag/velodyne.dag"
-#  }
-#}
-
-#monitored_components {
-#  key: "GPS"
-#  value: {
-#    process {
-#      command_keywords: "mainboard"
-#      command_keywords: "/apollo/modules/drivers/gnss/dag/gnss.dag"
-#    }
-#    # We also have a special GPSMonitor to check message status.
-#  }
-#}
+cyber_modules {
+  key: "Velodyne"
+  value: {
+    dag_files: "/apollo/modules/drivers/lidar/velodyne/dag/velodyne128.dag"
+  }
+}
 monitored_components {
   key: "Localization"
   value: {
     # Special LocalizationMonitor.
   }
 }
-# Disbale ESD-CAN for a while as in some cars we are using B-CAN.
-# monitored_components {
-#   key: "ESD-CAN"
-#   value: {
-#     # Special EsdCanMonitor.
-#   }
-# }
-#monitored_components {
-#  key: "Lidar 128"
-#  value: {
-#    channel {
-#      name: "/apollo/sensor/lidar128/compensator/PointCloud2"
-#    }
-#  }
-#}
+monitored_components {
+  key: "Lidar 128"
+  value: {
+    channel {
+      name: "/apollo/sensor/lidar128/compensator/PointCloud2"
+    }
+  }
+}
