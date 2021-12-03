@@ -35,16 +35,6 @@
         <process_name>udp_bridge_receiver_odometry</process_name>
     </module>
     <module>
-        <name>bridge_receiver_obstacle</name>
-        <dag_conf>/apollo/modules/bridge/dag/bridge_receiver_obstacle.dag</dag_conf>
-        <process_name>udp_bridge_receiver_obstacle</process_name>
-    </module>
-    <module>
-        <name>bridge_receiver_traffic_light</name>
-        <dag_conf>/apollo/modules/bridge/dag/bridge_receiver_traffic_light.dag</dag_conf>
-        <process_name>udp_bridge_receiver_traffic_light</process_name>
-    </module>
-    <module>
         <name>bridge_receiver_radar</name>
         <dag_conf>/apollo/modules/bridge/dag/bridge_receiver_radar.dag</dag_conf>
         <process_name>udp_bridge_receiver_radar</process_name>
