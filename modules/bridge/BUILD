@@ -68,6 +68,26 @@ cc_library(
         "//modules/bridge/common:udp_listener",
     ],
 )
+cc_library(
+    name = "udp_bridge_receiver_corimu",
+    srcs = ["udp_bridge_receiver_component_corimu.cc"],
+    hdrs = ["udp_bridge_receiver_component_corimu.h"],
+    copts = BRIDGE_COPTS,
+    deps = [
+        ":udp_bridge",
+        "//modules/bridge/common:udp_listener",
+    ],
+)
+cc_library(
+    name = "udp_bridge_receiver_camera",
+    srcs = ["udp_bridge_receiver_component_camera.cc"],
+    hdrs = ["udp_bridge_receiver_component_camera.h"],
+    copts = BRIDGE_COPTS,
+    deps = [
+        ":udp_bridge",
+        "//modules/bridge/common:udp_listener",
+    ],
+)
 
 cc_binary(
     name = "libudp_bridge_sender_component.so",
@@ -88,6 +108,19 @@ cc_binary(
     linkshared = True,
     linkstatic = False,
     deps = [":udp_bridge_multi_receiver"],
+)
+
+cc_binary(
+    name = "libudp_bridge_receiver_component_corimu.so",
+    linkshared = True,
+    linkstatic = False,
+    deps = [":udp_bridge_receiver_corimu"],
+)
+cc_binary(
+    name = "libudp_bridge_receiver_component_camera.so",
+    linkshared = True,
+    linkstatic = False,
+    deps = [":udp_bridge_receiver_camera"],
 )
 
 cc_test(
