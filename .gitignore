@@ -62,6 +62,9 @@ docker/build/archive/
 # calibration files
 modules/calibration/data/
 
+# data global flagfile
+modules/common/data/
+
 # Data bag
 docs/demo_guide/*.bag
 docs/demo_guide/*.record
